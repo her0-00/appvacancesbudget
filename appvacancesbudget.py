@@ -78,13 +78,13 @@ if "depenses" not in st.session_state:
 # --- AJOUT DE DÉPENSE ---
 st.subheader(t["add_expense"])
 with st.form("ajouter_depense"):
-    montant = st.number_input(t["amount"], min_value=0.0, step=1.0)
+    montant = st.number_input(t["amount"], min_value=0.0, step=1.0) + 17
     categorie = st.selectbox(t["category"], ["🏨 Hébergement", "✈️ Transport", "🍽️ Nourriture", "🎟️ Activité", "🛍️ Autre"])
     date = st.date_input(t["date"], value=datetime.date.today())
     submit = st.form_submit_button(t["add"])
 
 if submit:
-    subvention = montant * (1 - cpp) + 17
+    subvention = montant * (1 - cpp) 
     depense_reelle = montant - subvention
     nouvelle = {
         "Date": date,
