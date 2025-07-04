@@ -85,12 +85,11 @@ with st.form("ajouter_depense"):
     submit = st.form_submit_button(t["add"])
 
 if submit:
-    nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant}
-    dépense = {"Dépense" : (montant -subvention)}
+    nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant, "Dépense (€)" : (montant -subvention)}
+    
     st.session_state.depenses = pd.concat([st.session_state.depenses, pd.DataFrame([nouvelle])], ignore_index=True)
     total_actuel = st.session_state.depenses["Montant (€)"].sum()
     subvention = montant *(1- cpp) 
-    total_pay =st.session_state.depenses["Dépense"].sum()
     reste = total_actuel - subvention - 17 # Réguk par défaut arbitraire
     st.success("✅ Dépense enregistrée !" if lang == "Français" else "✅ Expense recorded!")
     st.info(f"{t['grant_acquired']} : {subvention:.2f} €")
@@ -111,13 +110,14 @@ st.dataframe(df_filtered.sort_values("Date", ascending=False), use_container_wid
 
 # --- SYNTHÈSE ---
 total = df_filtered["Montant (€)"].sum()
+total_dep=df_filtered["Dépenses (€)"].sum()
 ratio = total / plafond
 st.subheader(t["summary"])
 col1, col2, col3 ,col4= st.columns(4)
 col1.metric("Total", f"{total:.2f} €")
 col2.metric("Plafond", f"{plafond:.2f} €")
 col3.metric("Subvention", f"{max_sub:.2f} €")
-col4.metric("Dépense réel", f"{st.session_state.depenses["Dépenses"].sum():.2f} €")
+col4.metric("Dépense réel", f"{total_dep:.2f} €")
 st.progress(min(ratio, 1.0))
 
 # --- ALERTES ---
