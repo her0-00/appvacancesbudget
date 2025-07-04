@@ -186,4 +186,6 @@ def generate_pdf(df, total, plafond):
 st.subheader(t["export_pdf"])
 if st.button(t["export_pdf"]):
     pdf_bytes = generate_pdf(df_filtered, total, plafond)
-    st.download_button("📄 Télécharger PDF", data=pdf_bytes, file_name="synthese
+    st.download_button("📄 Télécharger PDF", data=pdf_bytes, file_name="synthesevacances.pdf)
+
+
