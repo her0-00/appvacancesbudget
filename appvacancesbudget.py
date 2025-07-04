@@ -84,7 +84,7 @@ with st.form("ajouter_depense"):
     submit = st.form_submit_button(t["add"])
 
 if submit:
-    subvention = montant * (1 - cpp)
+    subvention = montant * (1 - cpp) + 17
     depense_reelle = montant - subvention
     nouvelle = {
         "Date": date,
