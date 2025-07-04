@@ -117,7 +117,7 @@ col1, col2, col3 ,col4= st.columns(4)
 col1.metric("Total", f"{total:.2f} €")
 col2.metric("Plafond", f"{plafond:.2f} €")
 col3.metric("Subvention", f"{max_sub:.2f} €")
-col3.metric("Dépense réel", f"{st.session_state.depenses["Dépenses"].sum():.2f} €")
+col4.metric("Dépense réel", f"{st.session_state.depenses["Dépenses"].sum():.2f} €")
 st.progress(min(ratio, 1.0))
 
 # --- ALERTES ---
