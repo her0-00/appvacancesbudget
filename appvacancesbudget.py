@@ -86,9 +86,11 @@ with st.form("ajouter_depense"):
 
 if submit:
     nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant}
+    dépense = {"Dépense" : (montant -subvention)}
     st.session_state.depenses = pd.concat([st.session_state.depenses, pd.DataFrame([nouvelle])], ignore_index=True)
     total_actuel = st.session_state.depenses["Montant (€)"].sum()
     subvention = montant *(1- cpp) 
+    total_pay =st.session_state.depenses["Dépense"].sum()
     reste = total_actuel - subvention - 17 # Réguk par défaut arbitraire
     st.success("✅ Dépense enregistrée !" if lang == "Français" else "✅ Expense recorded!")
     st.info(f"{t['grant_acquired']} : {subvention:.2f} €")
