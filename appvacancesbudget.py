@@ -74,7 +74,7 @@ plafond = base
 
 # --- SESSION STATE ---
 if "depenses" not in st.session_state:
-    st.session_state.depenses = pd.DataFrame(columns=["Date", "Catégorie", "Montant (€)"])
+    st.session_state.depenses = pd.DataFrame(columns=["Date", "Catégorie", "Montant (€)","Dépense (€)"])
 
 # --- AJOUT DE DÉPENSE ---
 st.subheader(t["add_expense"])
@@ -85,7 +85,7 @@ with st.form("ajouter_depense"):
     submit = st.form_submit_button(t["add"])
 
 if submit:
-    nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant, "Dépense (€)" : (montant -subvention)}
+    nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant}
     
     st.session_state.depenses = pd.concat([st.session_state.depenses, pd.DataFrame([nouvelle])], ignore_index=True)
     total_actuel = st.session_state.depenses["Montant (€)"].sum()
