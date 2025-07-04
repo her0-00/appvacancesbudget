@@ -88,7 +88,7 @@ if submit:
     nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant}
     st.session_state.depenses = pd.concat([st.session_state.depenses, pd.DataFrame([nouvelle])], ignore_index=True)
     total_actuel = st.session_state.depenses["Montant (€)"].sum()
-    subvention = min(max_sub, total_actuel)
+    subvention = montant * cpp
     reste = total_actuel - subvention
     st.success("✅ Dépense enregistrée !" if lang == "Français" else "✅ Expense recorded!")
     st.info(f"{t['grant_acquired']} : {subvention:.2f} €")
