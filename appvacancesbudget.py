@@ -8,7 +8,7 @@ from fpdf import FPDF
 
 # --- CONFIGURATION ---
 st.set_page_config(page_title="SubvenTrack Pro", layout="wide")
-st.title("🏖️ SubvenTrack Pro – Vacation Expense Tracker")
+st.title("🏖️  Vacation Expense Tracker")
 
 # --- LANGUES ---
 translations = {
@@ -68,13 +68,12 @@ base = st.sidebar.number_input("Base de calcul (€)", value=2400)
 cpp = st.sidebar.number_input("Coefficient CPP", value=0.479, format="%.3f")
 seuil = st.sidebar.slider("Seuil d'alerte (%)", min_value=70, max_value=100, value=90)
 
-# --- CALCULS ---
 max_sub = base * cpp
 plafond = base
 
 # --- SESSION STATE ---
 if "depenses" not in st.session_state:
-    st.session_state.depenses = pd.DataFrame(columns=["Date", "Catégorie", "Montant (€)","Dépense (€)"])
+    st.session_state.depenses = pd.DataFrame(columns=["Date", "Catégorie", "Montant (€)", "Dépense (€)"])
 
 # --- AJOUT DE DÉPENSE ---
 st.subheader(t["add_expense"])
@@ -85,15 +84,18 @@ with st.form("ajouter_depense"):
     submit = st.form_submit_button(t["add"])
 
 if submit:
-    nouvelle = {"Date": date, "Catégorie": categorie, "Montant (€)": montant}
-    
+    subvention = montant * (1 - cpp)
+    depense_reelle = montant - subvention
+    nouvelle = {
+        "Date": date,
+        "Catégorie": categorie,
+        "Montant (€)": montant,
+        "Dépense (€)": depense_reelle
+    }
     st.session_state.depenses = pd.concat([st.session_state.depenses, pd.DataFrame([nouvelle])], ignore_index=True)
-    total_actuel = st.session_state.depenses["Montant (€)"].sum()
-    subvention = montant *(1- cpp) 
-    reste = total_actuel - subvention - 17 # Réguk par défaut arbitraire
     st.success("✅ Dépense enregistrée !" if lang == "Français" else "✅ Expense recorded!")
     st.info(f"{t['grant_acquired']} : {subvention:.2f} €")
-    st.info(f"{t['to_pay']} : {(montant -subvention):.2f} €") 
+    st.info(f"{t['to_pay']} : {depense_reelle:.2f} €")
 
 # --- FILTRAGE PAR DATE ---
 st.subheader(t["date_range"])
@@ -110,10 +112,11 @@ st.dataframe(df_filtered.sort_values("Date", ascending=False), use_container_wid
 
 # --- SYNTHÈSE ---
 total = df_filtered["Montant (€)"].sum()
-total_dep=df_filtered["Dépenses (€)"].sum()
-ratio = total / plafond
+total_dep = df_filtered["Dépense (€)"].sum()
+ratio = total / plafond if plafond else 0
+
 st.subheader(t["summary"])
-col1, col2, col3 ,col4= st.columns(4)
+col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total", f"{total:.2f} €")
 col2.metric("Plafond", f"{plafond:.2f} €")
 col3.metric("Subvention", f"{max_sub:.2f} €")
@@ -128,16 +131,15 @@ elif total >= plafond * seuil / 100:
 else:
     st.info(t["alert_ok"])
 
-# --- GRAPHIQUE PIE (PLOTLY) ---
+# --- GRAPHIQUES ---
 if not df_filtered.empty:
     st.subheader(t["pie_chart"])
     pie_data = df_filtered.groupby("Catégorie")["Montant (€)"].sum().reset_index()
-    fig = px.pie(pie_data, names='Catégorie', values='Montant (€)', title='',
+    fig = px.pie(pie_data, names='Catégorie', values='Montant (€)',
                  color_discrete_sequence=px.colors.qualitative.Pastel)
     fig.update_traces(textinfo='percent+label', pull=[0.05]*len(pie_data))
     st.plotly_chart(fig, use_container_width=True)
 
-    # --- BARRE (ALTAIR) ---
     st.subheader(t["bar_chart"])
     bar = alt.Chart(pie_data).mark_bar(size=40).encode(
         x=alt.X("Catégorie:N", sort='-y', axis=alt.Axis(labelAngle=0)),
@@ -154,8 +156,11 @@ if st.button(t["save_json"]):
 
 uploaded = st.file_uploader(t["load_json"], type="json")
 if uploaded:
-    st.session_state.depenses = pd.read_json(uploaded)
-    st.success("✅ Données chargées !" if lang == "Français" else "✅ Data loaded!")
+    try:
+        st.session_state.depenses = pd.read_json(uploaded)
+        st.success("✅ Données chargées !" if lang == "Français" else "✅ Data loaded!")
+    except Exception as e:
+        st.error(f"Erreur lors du chargement : {e}")
 
 # --- EXPORT EXCEL ---
 st.subheader(t["export_excel"])
@@ -179,3 +184,6 @@ def generate_pdf(df, total, plafond):
     return pdf.output(dest='S').encode('latin-1')
 
 st.subheader(t["export_pdf"])
+if st.button(t["export_pdf"]):
+    pdf_bytes = generate_pdf(df_filtered, total, plafond)
+    st.download_button("📄 Télécharger PDF", data=pdf_bytes, file_name="synthese
