@@ -68,7 +68,7 @@ base = st.sidebar.number_input("Base de calcul (€)", value=2400)
 cpp = st.sidebar.number_input("Coefficient CPP", value=0.479, format="%.3f")
 seuil = st.sidebar.slider("Seuil d'alerte (%)", min_value=70, max_value=100, value=90)
 
-max_sub = base * cpp
+max_sub = base * (1-cpp)
 plafond = base
 
 # --- SESSION STATE ---
