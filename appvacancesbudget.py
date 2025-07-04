@@ -70,7 +70,7 @@ seuil = st.sidebar.slider("Seuil d'alerte (%)", min_value=70, max_value=100, val
 
 # --- CALCULS ---
 max_sub = base * cpp
-plafond = base + max_sub
+plafond = base
 
 # --- SESSION STATE ---
 if "depenses" not in st.session_state:
